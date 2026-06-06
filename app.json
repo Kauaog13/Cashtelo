@@ -33,6 +33,11 @@
           "useSQLCipher": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e3ef1e38-939d-401f-b618-7fa26e68c46a"
+      }
+    }
   }
 }
