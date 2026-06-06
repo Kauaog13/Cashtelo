@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Cashtelo",
+    "slug": "cashtelo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#32CD32"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.cashtelo.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#32CD32"
+      },
+      "package": "com.cashtelo.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": false,
+          "useSQLCipher": false
+        }
+      ]
+    ]
+  }
+}
