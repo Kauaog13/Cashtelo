@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1565C0</color>
+    <color name="primary_dark">#003C8F</color>
+    <color name="secondary">#00897B</color>
+    <color name="background">#0F1B2E</color>
+    <color name="surface">#1A2840</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#90A4AE</color>
+    <color name="green_500">#66BB6A</color>
+    <color name="red_500">#EF5350</color>
+    <color name="bottom_nav_selected">#FFFFFF</color>
+    <color name="bottom_nav_unselected">#80FFFFFF</color>
+</resources>

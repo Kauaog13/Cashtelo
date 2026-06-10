@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.cashtelo.ui.home.HomeFragment"
+        android:label="Cashtelo"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_homeFragment_to_addTransactionFragment"
+            app:destination="@id/addTransactionFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_transactionsFragment"
+            app:destination="@id/transactionsFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_reportsFragment"
+            app:destination="@id/reportsFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/transactionsFragment"
+        android:name="com.cashtelo.ui.transactions.TransactionsFragment"
+        android:label="Transações"
+        tools:layout="@layout/fragment_transactions">
+
+        <action
+            android:id="@+id/action_transactionsFragment_to_addTransactionFragment"
+            app:destination="@id/addTransactionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportsFragment"
+        android:name="com.cashtelo.ui.reports.ReportsFragment"
+        android:label="Relatório"
+        tools:layout="@layout/fragment_reports" />
+
+    <fragment
+        android:id="@+id/addTransactionFragment"
+        android:name="com.cashtelo.ui.addtransaction.AddTransactionFragment"
+        android:label="Nova Transação"
+        tools:layout="@layout/fragment_add_transaction">
+
+        <argument
+            android:name="transactionId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
+
+</navigation>
