@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <group
+        android:scaleX="0.07"
+        android:scaleY="0.07"
+        android:translateX="20.4"
+        android:translateY="20.4">
+        
+        <!-- Sombra do Castelo -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.3"
+            android:pathData="M130,850V450l80-60v-60l-40-20V210h80v40h40v-40h80v40h40v-40h80v40l-40,20v60l80,60v400H130Zm80-80h120v-80h320v80h120V478l-80-60v-68l40-20v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40l40,20v68l-80,60v292Zm160,0h240v-200H370v200Zm-40-280h320v-80H330v80Z"/>
+
+        <!-- Castelo Verde (Cash) -->
+        <path
+            android:fillColor="#4CAF50"
+            android:pathData="M120,840V440l80-60v-60l-40-20V200h80v40h40v-40h80v40h40v-40h80v40l-40,20v60l80,60v400H120Zm80-80h120v-80h320v80h120V468l-80-60v-68l40-20v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40l40,20v68l-80,60v292Zm160,0h240v-200H360v200Zm-40-280h320v-80H320v80Z"/>
+            
+        <!-- Sombra do Cifrão -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.4"
+            android:pathData="M505,830 v-20 c30,0 50,-20 50,-50 s-20,-50 -50,-50 h-20 c-15,0 -25,-10 -25,-25 s10,-25 25,-25 h40 v-30 h-20 v-20 h-30 v20 c-30,0 -50,20 -50,50 s20,50 50,50 h20 c15,0 25,10 25,25 s-10,25 -25,25 h-40 v30 h20 v20 z" />
+
+        <!-- Cifrão Dourado -->
+        <path
+            android:fillColor="#FFD700"
+            android:pathData="M495,820 v-20 c30,0 50,-20 50,-50 s-20,-50 -50,-50 h-20 c-15,0 -25,-10 -25,-25 s10,-25 25,-25 h40 v-30 h-20 v-20 h-30 v20 c-30,0 -50,20 -50,50 s20,50 50,50 h20 c15,0 25,10 25,25 s-10,25 -25,25 h-40 v30 h20 v20 z" />
+    </group>
+</vector>

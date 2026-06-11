@@ -1,0 +1,54 @@
+# Ignorar saídas de build
+**/build/
+
+# Cache do Gradle
+.gradle/
+
+# Arquivos de configuração locais (SDK, senhas locais)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea/*/workspace.xml
+
+# Configurações do VS Code (opcional para projetos que não compartilham config)
+.vscode/
+
+# NDK / builds nativos
+.externalNativeBuild/
+.cxx/
+obj/
+
+# Capturas e arquivos temporários do Android Studio
+captures/
+
+# Arquivos de assinatura/keystore (não enviar para o repositório)
+*.jks
+*.keystore
+
+# Arquivos gerados e empacotamento
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+*.so
+
+# ProGuard / R8
+proguard/
+
+# Logs e arquivos temporários
+*.log
+*.orig
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Outras configurações e artefatos
+gradle-app.setting
+generated/
+out/
