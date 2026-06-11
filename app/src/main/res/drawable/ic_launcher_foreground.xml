@@ -1,31 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startY="49.59793"
-                android:startX="42.9492"
-                android:endY="92.4963"
-                android:endX="85.84757"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000"/>
+    
+    <group
+        android:scaleX="0.07"
+        android:scaleY="0.07"
+        android:translateX="20.4"
+        android:translateY="20.4">
+        
+        <!-- Sombra do Castelo -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.3"
+            android:pathData="M130,850V450l80-60v-60l-40-20V210h80v40h40v-40h80v40h40v-40h80v40l-40,20v60l80,60v400H130Zm80-80h120v-80h320v80h120V478l-80-60v-68l40-20v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40l40,20v68l-80,60v292Zm160,0h240v-200H370v200Zm-40-280h320v-80H330v80Z"/>
+
+        <!-- Castelo Verde (Cash) -->
+        <path
+            android:fillColor="#4CAF50"
+            android:pathData="M120,840V440l80-60v-60l-40-20V200h80v40h40v-40h80v40h40v-40h80v40l-40,20v60l80,60v400H120Zm80-80h120v-80h320v80h120V468l-80-60v-68l40-20v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40h-40v-40h-40v40l40,20v68l-80,60v292Zm160,0h240v-200H360v200Zm-40-280h320v-80H320v80Z"/>
+            
+        <!-- Sombra do Cifrão -->
+        <path
+            android:fillColor="#000000"
+            android:fillAlpha="0.4"
+            android:pathData="M505,830 v-20 c30,0 50,-20 50,-50 s-20,-50 -50,-50 h-20 c-15,0 -25,-10 -25,-25 s10,-25 25,-25 h40 v-30 h-20 v-20 h-30 v20 c-30,0 -50,20 -50,50 s20,50 50,50 h20 c15,0 25,10 25,25 s-10,25 -25,25 h-40 v30 h20 v20 z" />
+
+        <!-- Cifrão Dourado -->
+        <path
+            android:fillColor="#FFD700"
+            android:pathData="M495,820 v-20 c30,0 50,-20 50,-50 s-20,-50 -50,-50 h-20 c-15,0 -25,-10 -25,-25 s10,-25 25,-25 h40 v-30 h-20 v-20 h-30 v20 c-30,0 -50,20 -50,50 s20,50 50,50 h20 c15,0 25,10 25,25 s-10,25 -25,25 h-40 v30 h20 v20 z" />
+    </group>
 </vector>

@@ -82,9 +82,12 @@ class ProfileFragment : Fragment() {
 
             val finalPassword = if (newPassword.isNotEmpty()) newPassword else savedPassword
 
-            currentUser?.let {
-                viewModel.saveUser(it.copy(name = name, password = finalPassword))
-            }
+            val userToSave = currentUser?.copy(name = name, password = finalPassword)
+                ?: User(name = name, password = finalPassword)
+            
+            currentUser = userToSave
+            viewModel.saveUser(userToSave)
+            
             hideKeyboard()
             Toast.makeText(requireContext(), "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
             
@@ -114,6 +117,8 @@ class ProfileFragment : Fragment() {
                 if (!avatarPath.isNullOrEmpty() && File(avatarPath).exists()) {
                     val bitmap = BitmapFactory.decodeFile(avatarPath)
                     binding.ivProfileAvatar.setImageBitmap(bitmap)
+                    binding.ivProfileAvatar.imageTintList = null
+                    binding.ivProfileAvatar.setPadding(0, 0, 0, 0)
                     binding.ivProfileAvatar.visibility = View.VISIBLE
                     binding.tvAvatarInitials.visibility = View.GONE
                 } else if (user.name.isNotEmpty()) {
@@ -240,15 +245,15 @@ class ProfileFragment : Fragment() {
 
                 // Atualiza a View e Salva no DB
                 binding.ivProfileAvatar.setImageBitmap(scaledBitmap)
+                binding.ivProfileAvatar.imageTintList = null
+                binding.ivProfileAvatar.setPadding(0, 0, 0, 0)
                 binding.ivProfileAvatar.visibility = View.VISIBLE
                 binding.tvAvatarInitials.visibility = View.GONE
 
-                currentUser?.let { user ->
-                    val updatedUser = user.copy(avatarUri = file.absolutePath)
-                    currentUser = updatedUser
-                    viewModel.saveUser(updatedUser)
-                    Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
-                }
+                val updatedUser = currentUser?.copy(avatarUri = file.absolutePath) ?: User(avatarUri = file.absolutePath, name = "", password = "")
+                currentUser = updatedUser
+                viewModel.saveUser(updatedUser)
+                Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Erro ao processar imagem", Toast.LENGTH_SHORT).show()

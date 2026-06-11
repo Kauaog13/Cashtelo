@@ -191,6 +191,8 @@ class HomeFragment : Fragment() {
                 if (!avatarPath.isNullOrEmpty() && File(avatarPath).exists()) {
                     val bitmap = BitmapFactory.decodeFile(avatarPath)
                     binding.ivHomeAvatar.setImageBitmap(bitmap)
+                    binding.ivHomeAvatar.imageTintList = null
+                    binding.ivHomeAvatar.setPadding(0, 0, 0, 0)
                     binding.ivHomeAvatar.visibility = View.VISIBLE
                     binding.tvHomeAvatarInitials.visibility = View.GONE
                 } else if (user.name.isNotEmpty()) {
