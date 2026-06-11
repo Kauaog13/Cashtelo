@@ -1,232 +1,560 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    fragment_home.xml — Cashtelo
+    Layout completamente refatorado com:
+    - ConstraintLayout puro (sem LinearLayout wrappers desnecessários)
+    - Guidelines percentuais para responsividade mobile-first
+    - Hero card com gradiente e layout interno estruturado
+    - Cards de receita/despesa com borda colorida e ícone indicador
+    - Botões de navegação com ripple customizado
+    - FAB real de nova transação posicionado de forma proeminente
+-->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    android:fillViewport="true">
+    android:background="@drawable/bg_page_gradient"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/contentRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="96dp">
+        android:paddingBottom="100dp">
 
-        <!-- Hero card: personagem + saldo -->
+        <!-- ============================================================
+             Guideline horizontal de 5% do topo — margem de respiro segura
+             ============================================================ -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.0" />
+
+        <!-- Guideline lateral esquerda: 4.5% = ~16dp em 360dp -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.044" />
+
+        <!-- Guideline lateral direita: 95.5% -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.956" />
+
+        <!-- ============================================================
+             SEÇÃO: HEADER — Saudação + Data
+             ============================================================ -->
+        <TextView
+            android:id="@+id/tvGreeting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Olá, bem-vindo"
+            android:textColor="#99FFFFFF"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.02"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight" />
+
+        <TextView
+            android:id="@+id/tvAppTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Cashtelo"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            app:layout_constraintTop_toBottomOf="@id/tvGreeting"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight" />
+
+        <!-- ============================================================
+             HERO CARD — PixelMoodView + Saldo
+             (ConstraintLayout interno para posicionamento preciso)
+             ============================================================ -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardHeader"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/primary"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="16dp"
+            android:clipChildren="false"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="12dp"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintTop_toBottomOf="@id/tvAppTitle"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight">
 
-            <LinearLayout
+            <!--
+                ConstraintLayout interno do hero card.
+                Robô à esquerda (0..40%), conteúdo de saldo à direita (42%..100%).
+                Guidelines percentuais garantem que o robô não vá além de 40%
+                em qualquer tamanho de tela, e o texto sempre tenha espaço suficiente.
+            -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/heroCardInner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="20dp"
-                android:gravity="center_vertical">
+                android:background="@drawable/bg_hero_gradient"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingTop="28dp"
+                android:paddingBottom="20dp">
 
-                <!-- Pixel art -->
+                <!-- Guideline interna: robô ocupa até 40% da largura do card -->
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/heroGuideRobot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.40" />
+
+                <!-- Guideline interna: conteúdo começa a 44% -->
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/heroGuideContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.44" />
+
+                <!--
+                    PixelMoodView:
+                    - Largura: 0dp entre start e heroGuideRobot
+                    - Altura: constraintDimensionRatio = 10:12 (proporção original 100x120)
+                    - Isso garante que o robô seja sempre proporcional
+                -->
                 <com.cashtelo.ui.home.PixelMoodView
                     android:id="@+id/pixelMoodView"
-                    android:layout_width="100dp"
-                    android:layout_height="120dp" />
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintDimensionRatio="10:12"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/heroGuideRobot" />
 
-                <!-- Divider vertical -->
+                <!-- Divider vertical semi-transparente -->
                 <View
+                    android:id="@+id/heroDivider"
                     android:layout_width="1dp"
-                    android:layout_height="80dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="#44FFFFFF" />
+                    android:layout_height="0dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="#33FFFFFF"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/heroGuideContent" />
 
-                <!-- Saldo info -->
-                <LinearLayout
+                <!-- Bloco de saldo e info -->
+                <TextView
+                    android:id="@+id/tvSaldoLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="SALDO ATUAL"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.15"
+                    android:fontFamily="sans-serif-medium"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/heroGuideContent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SALDO ATUAL"
-                        android:textColor="#99FFFFFF"
-                        android:textSize="11sp"
-                        android:letterSpacing="0.12" />
+                <!-- Valor do saldo — hierarquia tipográfica principal -->
+                <TextView
+                    android:id="@+id/tvSaldo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="R$ 0,00"
+                    android:textColor="@color/text_primary"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    app:layout_constraintTop_toBottomOf="@id/tvSaldoLabel"
+                    app:layout_constraintStart_toEndOf="@id/heroGuideContent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tvSaldo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="R$ 0,00"
-                        android:textColor="@android:color/white"
-                        android:textSize="26sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="2dp" />
+                <!-- Divider sutil entre saldo e mood label -->
+                <View
+                    android:id="@+id/heroDividerHoriz"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="12dp"
+                    android:background="#22FFFFFF"
+                    app:layout_constraintTop_toBottomOf="@id/tvSaldo"
+                    app:layout_constraintStart_toEndOf="@id/heroGuideContent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tvMoodLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Suas finanças estão ok."
-                        android:textColor="#DDFFFFFF"
-                        android:textSize="12sp"
-                        android:layout_marginTop="8dp" />
+                <!-- Mood label — estado do robô/carteira -->
+                <TextView
+                    android:id="@+id/tvMoodLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Suas finanças estão ok."
+                    android:textColor="#DDFFFFFF"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    app:layout_constraintTop_toBottomOf="@id/heroDividerHoriz"
+                    app:layout_constraintStart_toEndOf="@id/heroGuideContent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tvTransactionCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0 transações"
-                        android:textColor="#88FFFFFF"
-                        android:textSize="11sp"
-                        android:layout_marginTop="3dp" />
+                <!-- Contagem de transações -->
+                <TextView
+                    android:id="@+id/tvTransactionCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="0 transações registradas"
+                    android:textColor="#66FFFFFF"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif"
+                    app:layout_constraintTop_toBottomOf="@id/tvMoodLabel"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/heroGuideContent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                </LinearLayout>
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Receitas / Despesas -->
-        <LinearLayout
-            android:id="@+id/layoutSummary"
-            android:layout_width="match_parent"
+        <!-- ============================================================
+             SEÇÃO LABEL: "Resumo do Período"
+             ============================================================ -->
+        <TextView
+            android:id="@+id/tvSectionSummary"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="24dp"
+            android:text="Resumo do Período"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
             app:layout_constraintTop_toBottomOf="@id/cardHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight" />
 
-            <!-- Receitas -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+        <!-- ============================================================
+             CARDS DE RECEITAS E DESPESAS
+             Chain horizontal com bias 0.5 para distribuição igual
+             ============================================================ -->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="↑ Receitas"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary" />
-
-                    <TextView
-                        android:id="@+id/tvReceitas"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="R$ 0,00"
-                        android:textSize="17sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/green_500"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Despesas -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="7dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="↓ Despesas"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary" />
-
-                    <TextView
-                        android:id="@+id/tvDespesas"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="R$ 0,00"
-                        android:textSize="17sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/red_500"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-
-        <!-- Botões de navegação -->
-        <LinearLayout
-            android:id="@+id/layoutButtons"
-            android:layout_width="match_parent"
+        <!-- Card Receitas -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardReceitas"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="14dp"
-            app:layout_constraintTop_toBottomOf="@id/layoutSummary"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintTop_toBottomOf="@id/tvSectionSummary"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/cardDespesas"
+            app:layout_constraintHorizontal_chainStyle="spread">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVerTransacoes"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                android:text="Transações"
-                android:textSize="13sp"
-                app:strokeColor="@color/primary"
-                app:strokeWidth="1.5dp" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_receita_card"
+                android:padding="16dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVerRelatorio"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginStart="7dp"
-                android:text="Relatório"
-                android:textSize="13sp"
-                app:backgroundTint="@color/secondary" />
+                <!-- Ícone indicador de receita -->
+                <FrameLayout
+                    android:id="@+id/iconBgReceita"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_icon_receita"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
 
-        </LinearLayout>
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_arrow_up"
+                        android:tint="@color/green_500"
+                        android:contentDescription="Receitas" />
+                </FrameLayout>
 
-        <!-- FAB substituído por botão grande -->
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fabAddTransaction"
-            android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tvReceitaLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Receitas"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif"
+                    android:letterSpacing="0.03"
+                    app:layout_constraintTop_toBottomOf="@id/iconBgReceita"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvReceitas"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="R$ 0,00"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_500"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    app:layout_constraintTop_toBottomOf="@id/tvReceitaLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Card Despesas -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDespesas"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintTop_toTopOf="@id/cardReceitas"
+            app:layout_constraintStart_toEndOf="@id/cardReceitas"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_despesa_card"
+                android:padding="16dp">
+
+                <!-- Ícone indicador de despesa -->
+                <FrameLayout
+                    android:id="@+id/iconBgDespesa"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_icon_despesa"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_arrow_down"
+                        android:tint="@color/red_500"
+                        android:contentDescription="Despesas" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvDespesaLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Despesas"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif"
+                    android:letterSpacing="0.03"
+                    app:layout_constraintTop_toBottomOf="@id/iconBgDespesa"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvDespesas"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="R$ 0,00"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/red_500"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    app:layout_constraintTop_toBottomOf="@id/tvDespesaLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============================================================
+             SEÇÃO LABEL: "Ações Rápidas"
+             ============================================================ -->
+        <TextView
+            android:id="@+id/tvSectionActions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Ações Rápidas"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            app:layout_constraintTop_toBottomOf="@id/cardReceitas"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight" />
+
+        <!-- ============================================================
+             BOTÕES DE NAVEGAÇÃO — Transações e Relatório
+             Chain horizontal com constraints e ripple customizado
+             ============================================================ -->
+        <FrameLayout
+            android:id="@+id/btnVerTransacoes"
+            android:layout_width="0dp"
             android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/ripple_button_outlined"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/tvSectionActions"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/btnVerRelatorio"
+            app:layout_constraintHorizontal_chainStyle="spread">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_list"
+                    android:tint="#CCFFFFFF"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Transações" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transações"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.02" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnVerRelatorio"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/ripple_button_outlined"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toTopOf="@id/btnVerTransacoes"
+            app:layout_constraintStart_toEndOf="@id/btnVerTransacoes"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_chart"
+                    android:tint="#CCFFFFFF"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="Relatório" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Relatório"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.02" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- ============================================================
+             BOTÃO PRINCIPAL — Nova Transação (full-width com gradiente)
+             ============================================================ -->
+        <FrameLayout
+            android:id="@+id/fabAddTransaction"
+            android:layout_width="0dp"
+            android:layout_height="58dp"
             android:layout_marginTop="14dp"
-            android:text="+ Nova Transação"
-            android:textSize="14sp"
-            app:icon="@android:drawable/ic_input_add"
-            app:backgroundTint="@color/primary"
-            app:layout_constraintTop_toBottomOf="@id/layoutButtons"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:background="@drawable/ripple_button_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            app:layout_constraintTop_toBottomOf="@id/btnVerTransacoes"
+            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
+            app:layout_constraintEnd_toStartOf="@id/guidelineRight">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_plus"
+                    android:tint="@android:color/white"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="Nova Transação" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nova Transação"
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.04" />
+            </LinearLayout>
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

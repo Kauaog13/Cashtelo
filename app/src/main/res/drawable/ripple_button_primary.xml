@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ripple sobre gradiente para o botão FAB principal -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#406BAED6">
+    <item android:drawable="@drawable/bg_fab_gradient" />
+</ripple>
