@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Cores base (mantidas) -->
     <color name="primary">#1565C0</color>
     <color name="primary_dark">#003C8F</color>
     <color name="secondary">#00897B</color>
-    <color name="background">#0F1B2E</color>
-    <color name="surface">#1A2840</color>
+    <color name="background">#0A1628</color>
+    <color name="surface">#111F35</color>
     <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#90A4AE</color>
-    <color name="green_500">#66BB6A</color>
-    <color name="red_500">#EF5350</color>
+    <color name="text_secondary">#7B93B3</color>
+    <color name="green_500">#4DD68C</color>
+    <color name="red_500">#FF6B6B</color>
     <color name="bottom_nav_selected">#FFFFFF</color>
     <color name="bottom_nav_unselected">#80FFFFFF</color>
+
+    <!-- Gradiente de fundo da página -->
+    <color name="bg_gradient_start">#0A1628</color>
+    <color name="bg_gradient_end">#0D1F3C</color>
+
+    <!-- Hero card gradiente -->
+    <color name="hero_gradient_start">#1A3A6E</color>
+    <color name="hero_gradient_mid">#162D5A</color>
+    <color name="hero_gradient_end">#0F1E3D</color>
+
+    <!-- Glassmorphism cards -->
+    <color name="glass_surface">#1A2B4A</color>
+    <color name="glass_border">#2A4070</color>
+    <color name="glass_border_light">#3A5580</color>
+
+    <!-- Glow / Accent colors -->
+    <color name="glow_happy">#5B9FFF</color>
+    <color name="glow_normal">#AB7BFF</color>
+    <color name="glow_sad">#6BAED6</color>
+    <color name="accent_gold">#FFD166</color>
+    <color name="accent_teal">#06D6A0</color>
+
+    <!-- Receita / Despesa cards -->
+    <color name="receita_bg">#0D2B1E</color>
+    <color name="receita_border">#1A5C3A</color>
+    <color name="despesa_bg">#2B0D12</color>
+    <color name="despesa_border">#5C1A1E</color>
+
+    <!-- FAB gradient -->
+    <color name="fab_start">#1E88E5</color>
+    <color name="fab_end">#1565C0</color>
+
+    <!-- Divider sutil -->
+    <color name="divider">#1E3050</color>
+
+    <!-- Bottom nav -->
+    <color name="nav_bg">#0D1A2E</color>
 </resources>
+
