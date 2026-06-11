@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         val appBarConfig = AppBarConfiguration(
-            setOf(R.id.homeFragment, R.id.transactionsFragment, R.id.reportsFragment)
+            setOf(R.id.homeFragment, R.id.transactionsFragment, R.id.reportsFragment, R.id.profileFragment)
         )
         setupActionBarWithNavController(navController, appBarConfig)
 
@@ -41,6 +41,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.reportsFragment -> {
                     navController.navigate(R.id.reportsFragment)
+                    true
+                }
+                R.id.profileFragment -> {
+                    navController.navigate(R.id.profileFragment)
                     true
                 }
                 else -> false

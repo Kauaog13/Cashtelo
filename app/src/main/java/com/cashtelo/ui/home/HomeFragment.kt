@@ -22,6 +22,8 @@ import com.cashtelo.databinding.FragmentHomeBinding
 import com.cashtelo.viewmodel.MoodState
 import com.cashtelo.viewmodel.TransactionViewModel
 import com.cashtelo.viewmodel.TransactionViewModelFactory
+import android.graphics.BitmapFactory
+import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -32,6 +34,10 @@ class HomeFragment : Fragment() {
 
     private val viewModel: TransactionViewModel by activityViewModels {
         TransactionViewModelFactory(requireActivity().application)
+    }
+
+    private val userViewModel: com.cashtelo.viewmodel.UserViewModel by activityViewModels {
+        com.cashtelo.viewmodel.UserViewModelFactory(requireActivity().application)
     }
 
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
@@ -170,6 +176,33 @@ class HomeFragment : Fragment() {
         viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
             val count = transactions?.size ?: 0
             binding.tvTransactionCount.text = "$count transação(ões) registrada(s)"
+        }
+
+        userViewModel.user.observe(viewLifecycleOwner) { user ->
+            val greeting = if (user != null && user.name.isNotBlank()) {
+                "Bem vindo ${user.name} ao Cashtelo."
+            } else {
+                "Bem vindo ao Cashtelo."
+            }
+            binding.tvGreeting.fadeUpdateText(greeting)
+
+            if (user != null) {
+                val avatarPath = user.avatarUri
+                if (!avatarPath.isNullOrEmpty() && File(avatarPath).exists()) {
+                    val bitmap = BitmapFactory.decodeFile(avatarPath)
+                    binding.ivHomeAvatar.setImageBitmap(bitmap)
+                    binding.ivHomeAvatar.visibility = View.VISIBLE
+                    binding.tvHomeAvatarInitials.visibility = View.GONE
+                } else if (user.name.isNotEmpty()) {
+                    val initial = user.name.first().uppercaseChar().toString()
+                    binding.tvHomeAvatarInitials.text = initial
+                    binding.tvHomeAvatarInitials.visibility = View.VISIBLE
+                    binding.ivHomeAvatar.visibility = View.GONE
+                } else {
+                    binding.ivHomeAvatar.visibility = View.VISIBLE
+                    binding.tvHomeAvatarInitials.visibility = View.GONE
+                }
+            }
         }
     }
 

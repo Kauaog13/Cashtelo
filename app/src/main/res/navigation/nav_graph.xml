@@ -57,4 +57,10 @@
             android:defaultValue="-1L" />
     </fragment>
 
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.cashtelo.ui.profile.ProfileFragment"
+        android:label="Meu Perfil"
+        tools:layout="@layout/fragment_profile" />
+
 </navigation>

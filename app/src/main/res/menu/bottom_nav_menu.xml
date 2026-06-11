@@ -16,4 +16,9 @@
         android:icon="@android:drawable/ic_menu_report_image"
         android:title="Relatório" />
 
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_person"
+        android:title="Meu Perfil" />
+
 </menu>
