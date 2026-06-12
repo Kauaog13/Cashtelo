@@ -14,20 +14,20 @@ import kotlin.math.*
 import kotlin.random.Random
 
 /**
- * PixelMoodView — Cavaleiro medieval em pixel art que reage ao estado financeiro.
+ * PixelMoodView — Robô em pixel art que reage ao estado financeiro.
  *
  * MELHORIAS VISUAIS (sem alterar a lógica de MoodState):
  * ─────────────────────────────────────────────────────
  * 1. Cache de pixels por estado → sem recalcular em cada frame
- * 2. Glow nos olhos (viseira) via BlurMaskFilter + RadialGradient
- * 3. Sombra projetada sob o cavaleiro
- * 4. Animação de "respiração" (scale suave 1.00 → 1.02 → 1.00) com AccelDecel
+ * 2. Glow nos olhos (visor) via BlurMaskFilter + RadialGradient
+ * 3. Sombra projetada sob o robô
+ * 4. Animação de "ventilação" (scale suave 1.00 → 1.02 → 1.00) com AccelDecel
  * 5. Bounce com OvershootInterpolator (FELIZ) e AccelDecel (TRISTE) — 60fps
  * 6. CrossFade de cores entre estados via ArgbEvaluator
  * 7. Sistema de partículas leve:
- *    - FELIZ  → estrelinhas douradas que sobem e somem
- *    - TRISTE → gotículas que caem
- *    - NORMAL → sem partículas
+ * - FELIZ  → estrelinhas douradas que sobem e somem
+ * - TRISTE → gotículas que caem
+ * - NORMAL → sem partículas
  * 8. Efeito de "flash" translucido branco quando o mood muda
  */
 class PixelMoodView @JvmOverloads constructor(
@@ -60,8 +60,8 @@ class PixelMoodView @JvmOverloads constructor(
     // ────────────────────────────────────────────────────────────
     // Animação: valores atuais
     // ────────────────────────────────────────────────────────────
-    private var bounceOffset  = 0f   // translação vertical do cavaleiro
-    private var breathScale   = 1f   // escala suave de respiração
+    private var bounceOffset  = 0f   // translação vertical do robô
+    private var breathScale   = 1f   // escala suave de ventilação/respiração
     private var flashAlpha    = 0f   // 0..1 — flash branco de transição
     private var crossfadeFrac = 1f   // 0..1 — fração de interpolação de cor (1 = no estado atual)
     private var glowRadius    = 4f   // raio do glow nos olhos
@@ -77,26 +77,25 @@ class PixelMoodView @JvmOverloads constructor(
     private var glowAnimator:    ValueAnimator? = null
 
     // ────────────────────────────────────────────────────────────
-    // Paleta medieval (PRESERVADA do original + novos glow colors)
+    // Paleta do Robô (PRESERVADA do original + novos glow colors)
     // ────────────────────────────────────────────────────────────
-    private val helmetColor   = Color.parseColor("#8C9EAD")
-    private val helmetDark    = Color.parseColor("#546E7A")
-    private val helmetVisor   = Color.parseColor("#37474F")
-    private val visorSlitColor= Color.parseColor("#00BCD4")
-    private val armorBody     = Color.parseColor("#78909C")
-    private val armorDark     = Color.parseColor("#455A64")
-    private val armorGold     = Color.parseColor("#FFD54F")
-    private val cloakHappy    = Color.parseColor("#1565C0")
-    private val cloakNormal   = Color.parseColor("#4A148C")
-    private val cloakSad      = Color.parseColor("#37474F")
-    private val gloveColor    = Color.parseColor("#546E7A")
-    private val bootColor     = Color.parseColor("#3E2723")
-    private val bootSole      = Color.parseColor("#212121")
-    private val eyeColor      = Color.parseColor("#E0F7FA")
-    private val tearColor     = Color.parseColor("#64B5F6")
-    private val starColor     = Color.parseColor("#FFD700")
-    private val shieldColor   = Color.parseColor("#C62828")
-    private val shieldGold    = Color.parseColor("#FFD54F")
+    private val headColor         = Color.parseColor("#8C9EAD")
+    private val headDark          = Color.parseColor("#546E7A")
+    private val visorColor        = Color.parseColor("#37474F")
+    private val eyeLedColor       = Color.parseColor("#00BCD4")
+    private val mainMetalColor    = Color.parseColor("#78909C")
+    private val bodyDark          = Color.parseColor("#455A64")
+    private val circuitGold       = Color.parseColor("#FFD54F")
+    private val auraHappy         = Color.parseColor("#1565C0")
+    private val auraNormal        = Color.parseColor("#4A148C")
+    private val auraSad           = Color.parseColor("#37474F")
+    private val clawColor         = Color.parseColor("#546E7A")
+    private val propulsorColor    = Color.parseColor("#3E2723")
+    private val propulsorBase     = Color.parseColor("#212121")
+    private val tearColor         = Color.parseColor("#64B5F6")
+    private val starColor         = Color.parseColor("#FFD700")
+    private val chestDisplayColor = Color.parseColor("#C62828")
+    private val chestDisplayGold  = Color.parseColor("#FFD54F")
 
     // Glow por estado
     private val glowColorHappy  = Color.parseColor("#5B9FFF")
@@ -135,111 +134,112 @@ class PixelMoodView @JvmOverloads constructor(
     private val ROWS = 18
 
     // ────────────────────────────────────────────────────────────
-    // getPixels — PRESERVADA INTEGRALMENTE do original
-    // Apenas adicionamos caching na chamada, não alteramos a lógica.
+    // getPixels — Lógica de desenho integralmente preservada
+    // Nomenclaturas adaptadas para a anatomia de um robô
     // ────────────────────────────────────────────────────────────
     private fun getPixels(mood: MoodState): List<Triple<Int, Int, Int>> {
         pixelCache[mood]?.let { return it }
 
         val pixels = mutableListOf<Triple<Int, Int, Int>>()
-        val cloak = when (mood) {
-            MoodState.FELIZ  -> cloakHappy
-            MoodState.NORMAL -> cloakNormal
-            MoodState.TRISTE -> cloakSad
+        val aura = when (mood) {
+            MoodState.FELIZ  -> auraHappy
+            MoodState.NORMAL -> auraNormal
+            MoodState.TRISTE -> auraSad
         }
 
-        // ---- CAPACETE (linhas 0-4) ----
-        for (c in 3..8)  pixels.add(Triple(c, 0, helmetColor))
-        for (c in 2..9)  pixels.add(Triple(c, 1, helmetColor))
-        pixels.add(Triple(2, 1, helmetDark)); pixels.add(Triple(9, 1, helmetDark))
-        for (c in 2..9)  pixels.add(Triple(c, 2, helmetColor))
-        pixels.add(Triple(2, 2, helmetDark)); pixels.add(Triple(9, 2, helmetDark))
-        // detalhe dourado no topo
-        pixels.add(Triple(5, 0, armorGold)); pixels.add(Triple(6, 0, armorGold))
+        // ---- CABEÇA / TOPO (linhas 0-4) ----
+        for (c in 3..8)  pixels.add(Triple(c, 0, headColor))
+        for (c in 2..9)  pixels.add(Triple(c, 1, headColor))
+        pixels.add(Triple(2, 1, headDark)); pixels.add(Triple(9, 1, headDark))
+        for (c in 2..9)  pixels.add(Triple(c, 2, headColor))
+        pixels.add(Triple(2, 2, headDark)); pixels.add(Triple(9, 2, headDark))
+        // detalhe dourado no topo (antena/processador)
+        pixels.add(Triple(5, 0, circuitGold)); pixels.add(Triple(6, 0, circuitGold))
 
-        // ---- VISEIRA (linhas 3-5) ----
-        for (c in 2..9)  pixels.add(Triple(c, 3, helmetVisor))
-        for (c in 2..9)  pixels.add(Triple(c, 4, helmetVisor))
-        for (c in 2..9)  pixels.add(Triple(c, 5, helmetVisor))
-        // fendas da viseira (olhos) — LÓGICA DE ESTADO PRESERVADA
+        // ---- VISOR / TELA (linhas 3-5) ----
+        for (c in 2..9)  pixels.add(Triple(c, 3, visorColor))
+        for (c in 2..9)  pixels.add(Triple(c, 4, visorColor))
+        for (c in 2..9)  pixels.add(Triple(c, 5, visorColor))
+        // fendas do visor (olhos de LED) — LÓGICA DE ESTADO PRESERVADA
         when (mood) {
             MoodState.FELIZ -> {
-                for (c in 3..4) pixels.add(Triple(c, 4, visorSlitColor))
-                for (c in 7..8) pixels.add(Triple(c, 4, visorSlitColor))
+                for (c in 3..4) pixels.add(Triple(c, 4, eyeLedColor))
+                for (c in 7..8) pixels.add(Triple(c, 4, eyeLedColor))
             }
             MoodState.NORMAL -> {
-                pixels.add(Triple(3, 4, visorSlitColor)); pixels.add(Triple(4, 4, visorSlitColor))
-                pixels.add(Triple(7, 4, visorSlitColor)); pixels.add(Triple(8, 4, visorSlitColor))
+                pixels.add(Triple(3, 4, eyeLedColor)); pixels.add(Triple(4, 4, eyeLedColor))
+                pixels.add(Triple(7, 4, eyeLedColor)); pixels.add(Triple(8, 4, eyeLedColor))
             }
             MoodState.TRISTE -> {
-                // fenda pequena/caída
-                pixels.add(Triple(3, 4, visorSlitColor))
-                pixels.add(Triple(7, 4, visorSlitColor))
-                // lágrimas saindo da viseira
+                // LED pequeno/caído
+                pixels.add(Triple(3, 4, eyeLedColor))
+                pixels.add(Triple(7, 4, eyeLedColor))
+                // fuga de fluido refrigerante (lágrimas)
                 pixels.add(Triple(3, 5, tearColor)); pixels.add(Triple(3, 6, tearColor))
                 pixels.add(Triple(8, 5, tearColor)); pixels.add(Triple(8, 6, tearColor))
             }
         }
-        // borda lateral do capacete
-        pixels.add(Triple(1, 3, helmetDark)); pixels.add(Triple(10, 3, helmetDark))
-        pixels.add(Triple(1, 4, helmetDark)); pixels.add(Triple(10, 4, helmetDark))
-        pixels.add(Triple(1, 5, helmetDark)); pixels.add(Triple(10, 5, helmetDark))
+        // borda lateral da cabeça
+        pixels.add(Triple(1, 3, headDark)); pixels.add(Triple(10, 3, headDark))
+        pixels.add(Triple(1, 4, headDark)); pixels.add(Triple(10, 4, headDark))
+        pixels.add(Triple(1, 5, headDark)); pixels.add(Triple(10, 5, headDark))
 
-        // ---- PESCOÇO / GORJAL (linha 6) ----
-        for (c in 4..7)  pixels.add(Triple(c, 6, armorDark))
+        // ---- PESCOÇO / ARTICULAÇÃO (linha 6) ----
+        for (c in 4..7)  pixels.add(Triple(c, 6, bodyDark))
 
         // ---- OMBROS (linha 7) ----
-        pixels.add(Triple(0, 7, armorDark));  pixels.add(Triple(1, 7, helmetColor))
-        pixels.add(Triple(10, 7, helmetColor)); pixels.add(Triple(11, 7, armorDark))
-        for (c in 2..9) pixels.add(Triple(c, 7, armorBody))
-        pixels.add(Triple(2, 7, armorGold)); pixels.add(Triple(9, 7, armorGold))
+        pixels.add(Triple(0, 7, bodyDark));  pixels.add(Triple(1, 7, headColor))
+        pixels.add(Triple(10, 7, headColor)); pixels.add(Triple(11, 7, bodyDark))
+        for (c in 2..9) pixels.add(Triple(c, 7, mainMetalColor))
+        pixels.add(Triple(2, 7, circuitGold)); pixels.add(Triple(9, 7, circuitGold))
 
-        // ---- CORPO DA ARMADURA (linhas 8-12) ----
+        // ---- CHASSI / TRONCO (linhas 8-12) ----
         for (r in 8..12) {
-            for (c in 2..9) pixels.add(Triple(c, r, armorBody))
-            pixels.add(Triple(2, r, armorDark)); pixels.add(Triple(9, r, armorDark))
+            for (c in 2..9) pixels.add(Triple(c, r, mainMetalColor))
+            pixels.add(Triple(2, r, bodyDark)); pixels.add(Triple(9, r, bodyDark))
         }
-        // detalhe central dourado (brasão)
-        pixels.add(Triple(5, 9, armorGold));  pixels.add(Triple(6, 9, armorGold))
-        pixels.add(Triple(5, 10, armorGold)); pixels.add(Triple(6, 10, armorGold))
-        // manto atrás dos braços
-        pixels.add(Triple(0, 8, cloak)); pixels.add(Triple(1, 8, cloak))
-        pixels.add(Triple(10, 8, cloak)); pixels.add(Triple(11, 8, cloak))
-        pixels.add(Triple(0, 9, cloak)); pixels.add(Triple(1, 9, cloak))
-        pixels.add(Triple(10, 9, cloak)); pixels.add(Triple(11, 9, cloak))
+        // detalhe central dourado (núcleo / painel)
+        pixels.add(Triple(5, 9, circuitGold));  pixels.add(Triple(6, 9, circuitGold))
+        pixels.add(Triple(5, 10, circuitGold)); pixels.add(Triple(6, 10, circuitGold))
+        
+        // painel traseiro / aura projetada
+        pixels.add(Triple(0, 8, aura)); pixels.add(Triple(1, 8, aura))
+        pixels.add(Triple(10, 8, aura)); pixels.add(Triple(11, 8, aura))
+        pixels.add(Triple(0, 9, aura)); pixels.add(Triple(1, 9, aura))
+        pixels.add(Triple(10, 9, aura)); pixels.add(Triple(11, 9, aura))
 
-        // ---- BRAÇOS / LUVAS (linhas 8-12) ----
-        pixels.add(Triple(1, 10, gloveColor)); pixels.add(Triple(0, 11, gloveColor))
-        pixels.add(Triple(1, 11, gloveColor)); pixels.add(Triple(0, 12, gloveColor))
-        pixels.add(Triple(10, 10, gloveColor)); pixels.add(Triple(11, 11, gloveColor))
-        pixels.add(Triple(10, 11, gloveColor)); pixels.add(Triple(11, 12, gloveColor))
+        // ---- BRAÇOS / GARRAS (linhas 8-12) ----
+        pixels.add(Triple(1, 10, clawColor)); pixels.add(Triple(0, 11, clawColor))
+        pixels.add(Triple(1, 11, clawColor)); pixels.add(Triple(0, 12, clawColor))
+        pixels.add(Triple(10, 10, clawColor)); pixels.add(Triple(11, 11, clawColor))
+        pixels.add(Triple(10, 11, clawColor)); pixels.add(Triple(11, 12, clawColor))
 
-        // ---- ESCUDO (feliz) ----
+        // ---- BATERIA EXTRA / DISPLAY (feliz) ----
         if (mood == MoodState.FELIZ) {
-            pixels.add(Triple(0, 9, shieldColor));  pixels.add(Triple(0, 10, shieldColor))
-            pixels.add(Triple(0, 11, shieldColor)); pixels.add(Triple(0, 12, shieldColor))
-            pixels.add(Triple(0, 13, shieldColor))
-            pixels.add(Triple(0, 10, shieldGold))
+            pixels.add(Triple(0, 9, chestDisplayColor));  pixels.add(Triple(0, 10, chestDisplayColor))
+            pixels.add(Triple(0, 11, chestDisplayColor)); pixels.add(Triple(0, 12, chestDisplayColor))
+            pixels.add(Triple(0, 13, chestDisplayColor))
+            pixels.add(Triple(0, 10, chestDisplayGold))
         }
 
-        // ---- SAIA DA ARMADURA / MANTO (linhas 13-14) ----
+        // ---- BASE DO CHASSI / AURA (linhas 13-14) ----
         for (c in 2..9) {
-            pixels.add(Triple(c, 13, cloak))
-            pixels.add(Triple(c, 14, cloak))
+            pixels.add(Triple(c, 13, aura))
+            pixels.add(Triple(c, 14, aura))
         }
-        pixels.add(Triple(2, 13, armorDark)); pixels.add(Triple(9, 13, armorDark))
+        pixels.add(Triple(2, 13, bodyDark)); pixels.add(Triple(9, 13, bodyDark))
 
-        // ---- PERNAS (linhas 15-16) ----
-        for (c in 2..5)  { pixels.add(Triple(c, 15, armorDark)); pixels.add(Triple(c, 16, armorDark)) }
-        for (c in 6..9)  { pixels.add(Triple(c, 15, armorDark)); pixels.add(Triple(c, 16, armorDark)) }
+        // ---- PERNAS MECÂNICAS (linhas 15-16) ----
+        for (c in 2..5)  { pixels.add(Triple(c, 15, bodyDark)); pixels.add(Triple(c, 16, bodyDark)) }
+        for (c in 6..9)  { pixels.add(Triple(c, 15, bodyDark)); pixels.add(Triple(c, 16, bodyDark)) }
 
-        // ---- BOTAS (linha 17) ----
-        for (c in 1..5)  pixels.add(Triple(c, 17, bootColor))
-        for (c in 6..10) pixels.add(Triple(c, 17, bootColor))
-        for (c in 1..5)  pixels.add(Triple(c, 17, bootSole))
-        for (c in 6..10) pixels.add(Triple(c, 17, bootSole))
+        // ---- PÉS / PROPULSORES (linha 17) ----
+        for (c in 1..5)  pixels.add(Triple(c, 17, propulsorColor))
+        for (c in 6..10) pixels.add(Triple(c, 17, propulsorColor))
+        for (c in 1..5)  pixels.add(Triple(c, 17, propulsorBase))
+        for (c in 6..10) pixels.add(Triple(c, 17, propulsorBase))
 
-        // ---- ESTRELAS (feliz) ----
+        // ---- ESTRELAS / FAÍSCAS (feliz) ----
         if (mood == MoodState.FELIZ) {
             pixels.add(Triple(0, 1, starColor))
             pixels.add(Triple(11, 0, starColor))
@@ -252,7 +252,6 @@ class PixelMoodView @JvmOverloads constructor(
 
     // ────────────────────────────────────────────────────────────
     // setMood — ponto de entrada público. Lógica de estado intacta.
-    // Adicionamos apenas a orquestração das novas animações de UI.
     // ────────────────────────────────────────────────────────────
     fun setMood(mood: MoodState) {
         if (mood == currentMood) return
@@ -273,7 +272,7 @@ class PixelMoodView @JvmOverloads constructor(
         particles.clear()
         lastParticleTime = System.currentTimeMillis()
 
-        // 5. Reinicia animação de respiração com energia adequada ao estado
+        // 5. Reinicia animação de ventilação com energia adequada ao estado
         startBreathAnimation(mood)
 
         // 6. Ajusta glow
@@ -287,7 +286,7 @@ class PixelMoodView @JvmOverloads constructor(
         bounceAnimator?.cancel()
         when (mood) {
             MoodState.FELIZ -> {
-                // Bounce energético mas contido — parece que o cavaleiro pula de alegria
+                // Bounce energético mas contido — parece que o robô pula de alegria
                 bounceAnimator = ValueAnimator.ofFloat(0f, -10f, 0f).apply {
                     duration = 700
                     repeatCount = ValueAnimator.INFINITE
@@ -300,7 +299,7 @@ class PixelMoodView @JvmOverloads constructor(
                 }
             }
             MoodState.TRISTE -> {
-                // Oscilação lenta e pesada — cavaleiro está cabisbaixo
+                // Oscilação lenta e pesada — robô está cabisbaixo (bateria fraca)
                 bounceAnimator = ValueAnimator.ofFloat(0f, 5f, 0f).apply {
                     duration = 2800
                     repeatCount = ValueAnimator.INFINITE
@@ -313,7 +312,7 @@ class PixelMoodView @JvmOverloads constructor(
                 }
             }
             MoodState.NORMAL -> {
-                // Sem bounce; apenas respiração
+                // Sem bounce; apenas ventilação padrão
                 bounceAnimator = ValueAnimator.ofFloat(bounceOffset, 0f).apply {
                     duration = 400
                     interpolator = DecelerateInterpolator()
@@ -328,14 +327,14 @@ class PixelMoodView @JvmOverloads constructor(
     }
 
     // ────────────────────────────────────────────────────────────
-    // Respiração — scale suave, energia varia por estado
+    // Ventilação / Respiração — scale suave, energia varia por estado
     // ────────────────────────────────────────────────────────────
     private fun startBreathAnimation(mood: MoodState) {
         breathAnimator?.cancel()
         val (scaleMax, dur) = when (mood) {
-            MoodState.FELIZ  -> 1.04f to 800L   // respira rápido de empolgação
-            MoodState.NORMAL -> 1.02f to 1400L  // respiração calma
-            MoodState.TRISTE -> 1.015f to 2200L // respiração lenta e pesada
+            MoodState.FELIZ  -> 1.04f to 800L   // ventila rápido de empolgação
+            MoodState.NORMAL -> 1.02f to 1400L  // operação estável
+            MoodState.TRISTE -> 1.015f to 2200L // operação lenta e pesada
         }
         breathAnimator = ValueAnimator.ofFloat(1f, scaleMax, 1f).apply {
             duration = dur
@@ -350,7 +349,7 @@ class PixelMoodView @JvmOverloads constructor(
     }
 
     // ────────────────────────────────────────────────────────────
-    // Glow pulsante nos olhos — raio e alpha variam por estado
+    // Glow pulsante nos LEDs — raio e alpha variam por estado
     // ────────────────────────────────────────────────────────────
     private fun startGlowAnimation(mood: MoodState) {
         glowAnimator?.cancel()
@@ -398,7 +397,7 @@ class PixelMoodView @JvmOverloads constructor(
     }
 
     // ────────────────────────────────────────────────────────────
-    // CrossFade de cores entre estados (cor do manto, por exemplo)
+    // CrossFade de cores entre estados (cor da aura, por exemplo)
     // ────────────────────────────────────────────────────────────
     private fun startCrossfade() {
         crossfadeAnimator?.cancel()
@@ -429,7 +428,7 @@ class PixelMoodView @JvmOverloads constructor(
 
         when (currentMood) {
             MoodState.FELIZ -> {
-                // Estrelinhas douradas sobem do topo do capacete
+                // Estrelinhas/faíscas douradas sobem do topo da cabeça
                 repeat(2) {
                     val cx = offsetX + (3 + Random.nextInt(6)) * pixelSize
                     val cy = offsetY + Random.nextFloat() * 2f * pixelSize
@@ -443,7 +442,7 @@ class PixelMoodView @JvmOverloads constructor(
                 }
             }
             MoodState.TRISTE -> {
-                // Gotículas caem da viseira
+                // Fugas de fluido refrigerante (lágrimas)
                 val tearX = listOf(
                     offsetX + 3.5f * pixelSize,
                     offsetX + 7.5f * pixelSize
@@ -482,17 +481,17 @@ class PixelMoodView @JvmOverloads constructor(
         // Dimensões do pixel com base na menor proporção disponível
         val pixelSize = minOf(width.toFloat() / COLS, height.toFloat() / ROWS)
 
-        // Ponto de origem centralizado + bounce + respiração
+        // Ponto de origem centralizado + bounce + ventilação
         val totalW = COLS * pixelSize
         val totalH = ROWS * pixelSize
         val baseX = (width  - totalW) / 2f
         val baseY = (height - totalH) / 2f + bounceOffset
 
-        // Ponto central para escala de respiração
+        // Ponto central para escala de ventilação
         val cx = baseX + totalW / 2f
         val cy = baseY + totalH / 2f
 
-        // ── Sombra projetada (elipse achatada sob as botas) ──────
+        // ── Sombra projetada (elipse achatada sob os propulsores) ──────
         val shadowW = totalW * 0.6f * breathScale
         val shadowH = pixelSize * 0.6f
         val shadowX = cx
@@ -506,11 +505,11 @@ class PixelMoodView @JvmOverloads constructor(
         )
         canvas.restore()
 
-        // ── Aplica transformação de escala (respiração) ao cavaleiro ──
+        // ── Aplica transformação de escala (ventilação) ao robô ──
         canvas.save()
         canvas.scale(breathScale, breathScale, cx, cy)
 
-        // ── Pixels do cavaleiro ──────────────────────────────────
+        // ── Pixels do robô ──────────────────────────────────
         val currPixels = getPixels(currentMood)
         val prevPixels = if (crossfadeFrac < 1f) getPixels(previousMood) else null
 
@@ -539,10 +538,10 @@ class PixelMoodView @JvmOverloads constructor(
             canvas.drawRoundRect(left, top, right, bottom, 1.5f, 1.5f, pixelPaint)
         }
 
-        // ── Glow nos olhos (viseira) ──────────────────────────────
+        // ── Glow nos LEDs (visor) ──────────────────────────────
         drawGlowEyes(canvas, currentMood, pixelSize, baseX, baseY)
 
-        canvas.restore() // fim da escala de respiração
+        canvas.restore() // fim da escala de ventilação
 
         // ── Partículas (fora da escala para efeito mais natural) ──
         val dt = 16f // ~60fps
@@ -566,7 +565,7 @@ class PixelMoodView @JvmOverloads constructor(
     }
 
     /**
-     * Desenha o efeito de glow nos pixels de olho (viseira) do cavaleiro.
+     * Desenha o efeito de glow nos pixels do LED (visor) do robô.
      * Usa RadialGradient centrado em cada fenda para simular luz emitida.
      */
     private fun drawGlowEyes(
@@ -579,16 +578,16 @@ class PixelMoodView @JvmOverloads constructor(
             MoodState.TRISTE -> glowColorSad
         }
 
-        // Posições dos "olhos" conforme o estado — PRESERVADAS do original
+        // Posições dos "olhos/LEDs" conforme o estado — PRESERVADAS do original
         val eyePositions: List<Pair<Float, Float>> = when (mood) {
             MoodState.FELIZ -> listOf(
-                Pair(3.5f, 4.5f), Pair(7.5f, 4.5f)  // fenda larga
+                Pair(3.5f, 4.5f), Pair(7.5f, 4.5f)  // LED largo
             )
             MoodState.NORMAL -> listOf(
                 Pair(3.5f, 4.5f), Pair(7.5f, 4.5f)
             )
             MoodState.TRISTE -> listOf(
-                Pair(3f, 4.5f), Pair(7f, 4.5f)       // fenda pequena
+                Pair(3f, 4.5f), Pair(7f, 4.5f)       // LED pequeno
             )
         }
 
@@ -617,7 +616,7 @@ class PixelMoodView @JvmOverloads constructor(
     // ────────────────────────────────────────────────────────────
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        // Inicia animações do estado padrão (NORMAL) ao aparecer na tela
+        // Inicia animações do estado padrão (NORMAL) ao aparecer no ecrã
         startBounceAnimation(currentMood)
         startBreathAnimation(currentMood)
         startGlowAnimation(currentMood)
